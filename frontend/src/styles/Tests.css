@@ -1,0 +1,32 @@
+.tests {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.tests h2 {
+    text-align: center;
+    color: #282c34;
+}
+
+.tests ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.tests li {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.tests li:hover {
+    background-color: #e9e9e9;
+}
