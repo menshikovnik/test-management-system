@@ -4,7 +4,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
 }
 
-group = "com.testmanagmentsystem"
+group = "com.testmanagementsystem"
 version = "1.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -22,6 +22,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("javax.validation:validation-api")
     implementation("org.postgresql:postgresql")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

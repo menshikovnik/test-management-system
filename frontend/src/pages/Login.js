@@ -1,3 +1,5 @@
+// src/pages/Login.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Login.css';
@@ -8,7 +10,14 @@ const Login = () => {
 
     const handleLogin = async () => {
         try {
-            await axios.post('/api/login', { email, password });
+            const response = await axios.post('/api/login', {
+                email,
+                password
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
             alert('Logged in successfully');
         } catch (error) {
             alert('Error logging in');

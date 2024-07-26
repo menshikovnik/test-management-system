@@ -1,31 +1,32 @@
 .header {
-    background-color: #282c34;
+    background-color: #333;
     padding: 10px 0;
 }
 
-.header nav {
-    display: flex;
-    justify-content: center;
-}
-
-.header ul {
+.header nav ul {
     list-style: none;
     display: flex;
-    padding: 0;
+    justify-content: center;
     margin: 0;
+    padding: 0;
 }
 
-.header li {
+.header nav ul li {
     margin: 0 15px;
 }
 
-.header a {
+.header nav ul li a, .header nav ul li button {
     color: white;
     text-decoration: none;
     font-size: 1.2em;
-    transition: color 0.3s ease;
 }
 
-.header a:hover {
-    color: #61dafb;
+.header nav ul li button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.header nav ul li a:hover, .header nav ul li button:hover {
+    text-decoration: underline;
 }
