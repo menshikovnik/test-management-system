@@ -1,5 +1,3 @@
-// src/pages/Register.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import '../styles/Register.css';
@@ -10,7 +8,7 @@ const Register = () => {
 
     const handleRegister = async () => {
         try {
-            const response = await axios.post('/api/register', {
+            const response = await axios.post('http://localhost:8081/api/register', {
                 email,
                 password
             }, {
@@ -18,7 +16,11 @@ const Register = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            alert('Registered successfully');
+            if (response.status === 201) {
+                alert('Registered successfully');
+            } else {
+                alert('Registration failed');
+            }
         } catch (error) {
             alert('Error registering');
         }
