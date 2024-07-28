@@ -2,14 +2,15 @@ package com.testmanagementsystem.service;
 
 import com.testmanagementsystem.entity.User;
 import com.testmanagementsystem.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class DefaultUserService implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User registerUser(String email, String password) {
         if (userRepository.findByEmail(email) != null) {
