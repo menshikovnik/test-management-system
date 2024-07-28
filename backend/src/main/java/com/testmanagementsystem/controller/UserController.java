@@ -28,6 +28,11 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
-        return new ResponseEntity<>("Login successful", HttpStatus.OK);
+        try {
+            User user = userService.loginUser(request.getEmail(), request.getPassword());
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 }

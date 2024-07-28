@@ -1,25 +1,24 @@
-// src/pages/Login.js
-
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import axios from 'axios';
 import '../styles/Login.css';
 
-const Login = () => {
+const Login = ({onLogin}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        try {
-            const response = await axios.post('/api/login', {
-                email,
-                password
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+        const response = await axios.post('http://localhost:8081/api/login', {
+            email,
+            password
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.status === 200) {
             alert('Logged in successfully');
-        } catch (error) {
+            onLogin();
+        } else {
             alert('Error logging in');
         }
     };

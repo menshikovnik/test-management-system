@@ -13,12 +13,16 @@
 
 .header nav ul li {
     margin: 0 15px;
+    display: flex;
+    align-items: center;
 }
 
 .header nav ul li a, .header nav ul li button {
     color: white;
     text-decoration: none;
     font-size: 1.2em;
+    padding: 10px 15px;
+    display: inline-block;
 }
 
 .header nav ul li button {
