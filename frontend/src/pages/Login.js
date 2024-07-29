@@ -7,19 +7,26 @@ const Login = ({onLogin}) => {
     const [password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        const response = await axios.post('http://localhost:8081/api/login', {
-            email,
-            password
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
+        try {
+            const response = await axios.post('http://localhost:8081/api/login', {
+                email,
+                password
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                alert('Logged in successfully');
+                onLogin();
+            } else {
+                alert('Error logging in');
             }
-        });
-        if (response.status === 200) {
-            alert('Logged in successfully');
-            onLogin();
-        } else {
-            alert('Error logging in');
+        } catch (error) {
+            const {status} = error.response;
+            if (status === 401) {
+                alert('Incorrect credits');
+            }
         }
     };
 

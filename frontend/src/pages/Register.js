@@ -22,7 +22,20 @@ const Register = () => {
                 alert('Registration failed');
             }
         } catch (error) {
-            alert('Error registering');
+            if (error.response) {
+                const { status, data } = error.response;
+
+                if (status === 400 && typeof data === 'object') {
+                    const errorMessages = Object.values(data).join('\n');
+                    alert(`Validation errors:\n${errorMessages}`);
+                } else {
+                    alert(`Error: ${data}`);
+                }
+            } else if (error.request) {
+                alert('No response received from server');
+            } else {
+                alert('Error setting up request');
+            }
         }
     };
 
