@@ -8,7 +8,7 @@ const Register = () => {
 
     const handleRegister = async () => {
         try {
-            const response = await axios.post('http://localhost:8081/api/register', {
+            const response = await axios.post('http://localhost:8081/api/auth/register', {
                 email,
                 password
             }, {
@@ -16,7 +16,7 @@ const Register = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            if (response.status === 201) {
+            if (response.status === 201 || response.status === 201) {
                 alert('Registered successfully');
             } else {
                 alert('Registration failed');

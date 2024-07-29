@@ -1,12 +1,18 @@
 package com.testmanagementsystem.controller;
 
+import com.testmanagementsystem.dto.AuthResponse;
 import com.testmanagementsystem.dto.UserLoginRequest;
 import com.testmanagementsystem.dto.UserRegistrationRequest;
 import com.testmanagementsystem.entity.User;
-import com.testmanagementsystem.service.UserService;
+import com.testmanagementsystem.repository.UserRepository;
+import com.testmanagementsystem.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,29 +20,41 @@ import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 @Validated
 public class UserController {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationRequest request) {
-        try {
-            User user = userService.registerUser(request.getEmail(), request.getPassword());
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
+        if (userRepository.findByEmail(userRegistrationRequest.getEmail()) != null) {
+            throw new RuntimeException("User already exists");
         }
+
+        User user = new User(userRegistrationRequest.getEmail(), passwordEncoder.encode(userRegistrationRequest.getPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         try {
-            User user = userService.loginUser(request.getEmail(), request.getPassword());
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userLoginRequest.getEmail(), userLoginRequest.getPassword())
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid email or password");
         }
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(userLoginRequest.getEmail());
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthResponse(jwt));
     }
 }
