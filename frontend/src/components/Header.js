@@ -1,25 +1,44 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import {Container, Dropdown, Nav, Navbar} from 'react-bootstrap';
 import '../styles/Header.css';
 
-const Header = ({ isLoggedIn, handleLogout }) => {
+const Header = ({isLoggedIn, handleLogout}) => {
     return (
-        <header className="header">
-            <nav>
-                <ul>
-                    <li><Link to="/">Home</Link></li>
-                    {isLoggedIn && <li><Link to="/tests">Tests</Link></li>}
-                    {isLoggedIn ? (
-                        <li><button onClick={handleLogout}>Logout</button></li>
-                    ) : (
-                        <>
-                            <li><Link to="/login">Login</Link></li>
-                            <li><Link to="/register">Register</Link></li>
-                        </>
-                    )}
-                </ul>
-            </nav>
-        </header>
+        <Navbar className="custom-navbar" bg="light" expand="lg">
+            <Container>
+                <Navbar.Brand href="/" className="custom-brand">Test Management System</Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="ms-auto">
+                        <Dropdown align="end">
+                            <Dropdown.Toggle className="custom-dropdown-toggle" id="dropdown-basic">
+                                Menu
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className="custom-dropdown-menu">
+                                <Dropdown.Item href="/" className="custom-dropdown-item">Home</Dropdown.Item>
+                                {isLoggedIn &&
+                                    <Dropdown.Item href="/tests" className="custom-dropdown-item">Tests</Dropdown.Item>}
+                                {isLoggedIn ? (
+                                    <>
+                                        <Dropdown.Item onClick={handleLogout}
+                                                       className="custom-dropdown-item">Logout</Dropdown.Item>
+                                        <Dropdown.Item href="/profile"
+                                                       className="custom-dropdown-item">Profile</Dropdown.Item>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Dropdown.Item href="/login"
+                                                       className="custom-dropdown-item">Login</Dropdown.Item>
+                                        <Dropdown.Item href="/register"
+                                                       className="custom-dropdown-item">Register</Dropdown.Item>
+                                    </>
+                                )}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 };
 

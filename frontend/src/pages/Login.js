@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
-import axios from 'axios';
+import axios from '../utils/axiosConfig';
 import '../styles/Login.css';
+import {useNavigate} from 'react-router-dom';
 
 const Login = ({onLogin}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
@@ -16,16 +18,26 @@ const Login = ({onLogin}) => {
                     'Content-Type': 'application/json'
                 }
             });
+
             if (response.status === 200) {
+                const token = response.data.token;
+                localStorage.setItem('jwt', token);
                 alert('Logged in successfully');
                 onLogin();
+                navigate('/tests');
             } else {
                 alert('Error logging in');
             }
         } catch (error) {
-            const {status} = error.response;
-            if (status === 401) {
-                alert('Incorrect credits');
+            if (error.response) {
+                const {status} = error.response;
+                if (status === 401) {
+                    alert('Incorrect credentials');
+                } else {
+                    alert('Error logging in');
+                }
+            } else {
+                alert('Error setting up request');
             }
         }
     };
