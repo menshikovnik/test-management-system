@@ -10,7 +10,7 @@ const Login = ({onLogin}) => {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:8081/api/auth/login', {
+            const response = await axios.post('/auth/login', {
                 email,
                 password
             }, {
@@ -20,7 +20,7 @@ const Login = ({onLogin}) => {
             });
 
             if (response.status === 200) {
-                const token = response.data.token;
+                const token = response.data.jwt;
                 localStorage.setItem('jwt', token);
                 alert('Logged in successfully');
                 onLogin();
