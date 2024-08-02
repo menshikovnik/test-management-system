@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class TestRequest {
+    private Long id;
     private String name;
     private List<QuestionRequest> questions;
 }

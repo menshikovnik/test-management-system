@@ -6,12 +6,15 @@ import com.testmanagementsystem.dto.TestRequest;
 import com.testmanagementsystem.entity.Answer;
 import com.testmanagementsystem.entity.Question;
 import com.testmanagementsystem.entity.Test;
+import com.testmanagementsystem.mapper.TestMapper;
+import com.testmanagementsystem.repository.TestRepository;
 import com.testmanagementsystem.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -20,6 +23,7 @@ import java.util.List;
 public class TestController {
 
     private final TestService testService;
+    private final TestRepository testRepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createTest(@RequestBody TestRequest testRequest) {
@@ -48,13 +52,12 @@ public class TestController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<Test>> getAllTests() {
-        try {
-            List<Test> tests = testService.getAllTests();
-            return ResponseEntity.ok(tests);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    @GetMapping("/getAll")
+    public ResponseEntity<List<TestRequest>> getAllTests() {
+        List<Test> tests = testRepository.findAll();
+        List<TestRequest> testDTOs = tests.stream()
+                .map(TestMapper::toTestDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(testDTOs);
     }
 }

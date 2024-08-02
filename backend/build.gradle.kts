@@ -25,6 +25,8 @@ dependencies {
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
     implementation("org.hibernate:hibernate-core:5.4.32.Final")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.1")
+
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
