@@ -50,4 +50,5 @@ yarn-debug.log
 /gradle/
 /gradlew
 /gradlew.bat
+/frontend/package-lock.json
 /backend/src/main/resources/application.yml

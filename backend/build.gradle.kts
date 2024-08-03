@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "2.0.9.RELEASE"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("org.springframework.boot") version "2.5.7"
+    id("io.spring.dependency-management") version "1.0.13.RELEASE"
 }
 
 group = "com.testmanagementsystem"
@@ -36,6 +36,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.20")
 }
 
-tasks.test {
-    useJUnitPlatform()
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
