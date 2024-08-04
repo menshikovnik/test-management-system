@@ -17,4 +17,20 @@ instance.interceptors.request.use(
     }
 );
 
+instance.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            alert("Session expired. Please log in again.")
+            logoutUser();
+        }
+        return Promise.reject(error);
+    }
+);
+
+function logoutUser() {
+    localStorage.removeItem('jwt');
+    window.location.href = '/login';
+}
+
 export default instance;

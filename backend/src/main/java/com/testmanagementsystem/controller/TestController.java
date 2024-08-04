@@ -44,7 +44,6 @@ public class TestController {
                 }
                 test.getQuestions().add(question);
             }
-            System.out.println(test);
             testService.createTest(test);
             return ResponseEntity.ok("Test created successfully");
         } catch (Exception e) {

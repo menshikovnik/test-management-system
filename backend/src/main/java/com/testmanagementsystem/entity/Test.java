@@ -1,6 +1,5 @@
 package com.testmanagementsystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -17,7 +16,6 @@ public class Test {
     private Long id;
     private String name;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Question> questions = new ArrayList<>();
 
