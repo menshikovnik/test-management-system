@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import axios from '../utils/axiosConfig';
 import {Button, Card, Col, Collapse, Container, Form, ListGroup, Row} from 'react-bootstrap';
+import TextareaAutosize from 'react-textarea-autosize';
 import '../styles/Tests.css';
 
 const Tests = () => {
@@ -8,9 +9,9 @@ const Tests = () => {
     const [showCreateTest, setShowCreateTest] = useState(false);
     const [expandedTests, setExpandedTests] = useState([]);
     const [newTest, setNewTest] = useState({
-        name: '',
-        questions: [{text: '', answers: [{text: '', correct: false}]}]
+        name: '', questions: [{text: '', answers: [{text: '', correct: false}]}]
     });
+    const [editTest, setEditTest] = useState(null);
 
     useEffect(() => {
         const fetchTests = () => {
@@ -54,8 +55,7 @@ const Tests = () => {
 
     const addQuestion = () => {
         setNewTest({
-            ...newTest,
-            questions: [...newTest.questions, {text: '', answers: [{text: '', correct: false}]}]
+            ...newTest, questions: [...newTest.questions, {text: '', answers: [{text: '', correct: false}]}]
         });
     };
 
@@ -71,8 +71,7 @@ const Tests = () => {
             alert('Test created successfully');
             setShowCreateTest(false);
             setNewTest({
-                name: '',
-                questions: [{text: '', answers: [{text: '', correct: false}]}]
+                name: '', questions: [{text: '', answers: [{text: '', correct: false}]}]
             });
 
             const response = await axios.get('/tests');
@@ -82,16 +81,63 @@ const Tests = () => {
         }
     };
 
-    const toggleTestExpansion = (testId) => {
-        setExpandedTests((prevExpandedTests) =>
-            prevExpandedTests.includes(testId)
-                ? prevExpandedTests.filter((id) => id !== testId)
-                : [...prevExpandedTests, testId]
-        );
+    const toggleTestExpansion = (test) => {
+        if (expandedTests.includes(test.id)) {
+            setExpandedTests(expandedTests.filter((id) => id !== test.id));
+            setEditTest(null);
+        } else {
+            setExpandedTests([...expandedTests, test.id]);
+            setEditTest(test);
+        }
     };
 
-    return (
-        <Container className="tests mt-5">
+    const handleEditTestChange = (e) => {
+        setEditTest({...editTest, [e.target.name]: e.target.value});
+    };
+
+    const handleEditQuestionChange = (index, e) => {
+        const updatedQuestions = [...editTest.questions];
+        updatedQuestions[index].text = e.target.value;
+        setEditTest({...editTest, questions: updatedQuestions});
+    };
+    const handleEditAnswerChange = (qIndex, aIndex, e) => {
+        const updatedQuestions = [...editTest.questions];
+        updatedQuestions[qIndex].answers[aIndex][e.target.name] = e.target.value;
+        setEditTest({...editTest, questions: updatedQuestions});
+    };
+
+    const handleEditAnswerCorrectChange = (qIndex, aIndex) => {
+        const updatedQuestions = [...editTest.questions];
+        updatedQuestions[qIndex].answers[aIndex].correct = !updatedQuestions[qIndex].answers[aIndex].correct;
+        setEditTest({...editTest, questions: updatedQuestions});
+    };
+
+    const addEditQuestion = () => {
+        setEditTest({
+            ...editTest, questions: [...editTest.questions, {text: '', answers: [{text: '', correct: false}]}]
+        });
+    };
+
+    const addEditAnswer = (index) => {
+        const updatedQuestions = [...editTest.questions];
+        updatedQuestions[index].answers.push({text: '', correct: false});
+        setEditTest({...editTest, questions: updatedQuestions});
+    };
+
+    const handleSaveEditTest = async () => {
+        try {
+            await axios.put(`/tests/get/${editTest.id}`, editTest);
+            alert('Test updated successfully');
+            setEditTest(null);
+
+            const response = await axios.get('/tests');
+            setTests(response.data);
+        } catch (error) {
+            console.error('Error updating test', error);
+        }
+    };
+
+    return (<Container className="tests mt-5">
             <h2>Tests</h2>
             <Button variant="primary" onClick={handleCreateTestToggle}>
                 {showCreateTest ? 'Cancel' : 'Create Test'}
@@ -116,8 +162,9 @@ const Tests = () => {
                                     <div key={qIndex} className="question mt-3">
                                         <Form.Group controlId={`formQuestionText${qIndex}`}>
                                             <Form.Label>Question {qIndex + 1}</Form.Label>
-                                            <Form.Control
-                                                type="text"
+                                            <TextareaAutosize
+                                                className="form-control"
+                                                minRows={2}
                                                 placeholder="Enter question text"
                                                 value={question.text}
                                                 onChange={(e) => handleQuestionChange(qIndex, e)}
@@ -142,14 +189,12 @@ const Tests = () => {
                                                         onChange={() => handleAnswerCorrectChange(qIndex, aIndex)}
                                                     />
                                                 </Col>
-                                            </Row>
-                                        ))}
+                                            </Row>))}
                                         <Button variant="secondary" className="mt-2 add-answer-button"
                                                 onClick={() => addAnswer(qIndex)}>
                                             Add Answer
                                         </Button>
-                                    </div>
-                                ))}
+                                    </div>))}
                                 <Button variant="secondary" className="mt-3 add-question-button" onClick={addQuestion}>
                                     Add Question
                                 </Button>
@@ -162,34 +207,85 @@ const Tests = () => {
                 </div>
             </Collapse>
             <div className="test-list mt-4">
-                {tests.map((test) => (
-                    <Card key={test.id} className="test mb-3">
-                        <Card.Header onClick={() => toggleTestExpansion(test.id)} style={{cursor: 'pointer'}}>
+                {tests.map((test) => (<Card key={test.id} className="test mb-3">
+                        <Card.Header onClick={() => toggleTestExpansion(test)} style={{cursor: 'pointer'}}>
                             {test.name} {expandedTests.includes(test.id) ? '▼' : '►'}
                         </Card.Header>
                         <Collapse in={expandedTests.includes(test.id)}>
                             <div className="questions">
-                                <ListGroup>
-                                    {test.questions.map((question) => (
-                                        <ListGroup.Item key={question.id} className="question">
-                                            <strong>{question.text}</strong>
-                                            <ul>
-                                                {question.answers.map((answer) => (
-                                                    <li key={answer.id} className={answer.correct ? 'correct' : ''}>
-                                                        {answer.text}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
+                                {editTest && editTest.id === test.id ? (<Form>
+                                        <Form.Group controlId="formEditTestName">
+                                            <Form.Label>Test Name</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="name"
+                                                placeholder="Enter test name"
+                                                value={editTest.name}
+                                                onChange={(e) => handleEditTestChange(e)}
+                                            />
+                                        </Form.Group>
+                                        {editTest.questions.map((question, qIndex) => (
+                                            <div key={qIndex} className="question mt-3">
+                                                <Form.Group controlId={`formEditQuestionText${qIndex}`}>
+                                                    <Form.Label>Question {qIndex + 1}</Form.Label>
+                                                    <TextareaAutosize
+                                                        className="form-control"
+                                                        minRows={2}
+                                                        placeholder="Enter question text"
+                                                        value={question.text}
+                                                        onChange={(e) => handleEditQuestionChange(qIndex, e)}
+                                                    />
+                                                </Form.Group>
+                                                {question.answers.map((answer, aIndex) => (
+                                                    <Row key={aIndex} className="answer mt-2">
+                                                        <Col>
+                                                            <Form.Control
+                                                                type="text"
+                                                                name="text"
+                                                                placeholder="Enter answer text"
+                                                                value={answer.text}
+                                                                onChange={(e) => handleEditAnswerChange(qIndex, aIndex, e)}
+                                                            />
+                                                        </Col>
+                                                        <Col xs="auto">
+                                                            <Form.Check
+                                                                type="checkbox"
+                                                                label="Correct"
+                                                                checked={answer.correct}
+                                                                onChange={() => handleEditAnswerCorrectChange(qIndex, aIndex)}
+                                                            />
+                                                        </Col>
+                                                    </Row>))}
+                                                <Button variant="secondary" className="mt-2 add-answer-button"
+                                                        onClick={() => addEditAnswer(qIndex)}>
+                                                    Add Answer
+                                                </Button>
+                                            </div>))}
+                                        <Button variant="secondary" className="mt-3 add-question-button"
+                                                onClick={addEditQuestion}>
+                                            Add Question
+                                        </Button>
+                                        <Button variant="primary" className="mt-3 save-test"
+                                                onClick={handleSaveEditTest}>
+                                            Save Test
+                                        </Button>
+                                    </Form>) : (<ListGroup>
+                                        {test.questions.map((question) => (
+                                            <ListGroup.Item key={question.id} className="question">
+                                                <strong>{question.text}</strong>
+                                                <ul>
+                                                    {question.answers.map((answer) => (
+                                                        <li key={answer.id} className={answer.correct ? 'correct' : ''}>
+                                                            {answer.text}
+                                                        </li>))}
+                                                </ul>
+                                            </ListGroup.Item>))}
+                                    </ListGroup>)}
                             </div>
                         </Collapse>
-                    </Card>
-                ))}
+                    </Card>))}
             </div>
-        </Container>
-    );
+        </Container>);
 };
 
 export default Tests;
