@@ -4,6 +4,7 @@
     padding: 10px;
 }
 
+
 .tests {
     max-width: 800px;
     margin: auto;
@@ -58,6 +59,29 @@ button {
 .add-question-button {
     background-color: #007bff;
     border-color: #007bff;
+}
+
+.edit-button {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.delete-button {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+    border-color: darkred;
+    color: white;
 }
 
 .add-question-button:hover {

@@ -54,4 +54,14 @@ public class TestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteTest(@PathVariable Long id) {
+        try {
+            testService.deleteTest(testService.findById(id));
+            return ResponseEntity.ok().body("Test deleted successfully");
+        } catch (TestNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }

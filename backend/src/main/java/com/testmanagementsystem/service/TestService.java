@@ -97,6 +97,10 @@ public class TestService {
         save(existingTest);
     }
 
+    public void deleteTest(Test test) {
+        testRepository.delete(test);
+    }
+
     @EntityGraph(attributePaths = {"questions.answers"})
     public Test findById(Long id) {
         return testRepository.findById(id).orElse(null);
