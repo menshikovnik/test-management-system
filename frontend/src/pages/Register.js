@@ -24,7 +24,7 @@ const Register = () => {
                 }
             });
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 alert('Registered successfully');
             } else {
                 alert('Registration failed');
