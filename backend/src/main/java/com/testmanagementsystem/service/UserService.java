@@ -41,7 +41,7 @@ public class UserService implements UserDetailsService {
         verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
         verificationTokenRepository.save(verificationToken);
 
-        String confirmationUrl = "http://localhost:8081/confirm?token=" + token;
+        String confirmationUrl = "http://localhost:8081/api/auth/confirm?token=" + token;
         emailService.sendSimpleMessage(user.getEmail(), "Confirm your email", "To confirm your email, please click here: " + confirmationUrl);
     }
 

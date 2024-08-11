@@ -6,6 +6,7 @@ import {useNavigate} from 'react-router-dom';
 const Login = ({onLogin}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
     const handleLogin = async () => {
@@ -22,6 +23,15 @@ const Login = ({onLogin}) => {
             if (response.status === 200) {
                 const token = response.data.jwt;
                 localStorage.setItem('jwt', token);
+                const userResponse = await axios.get('/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (userResponse.status === 200) {
+                    localStorage.setItem('user', userResponse.data.id)
+                    setUser(userResponse.data);
+                }
                 alert('Logged in successfully');
                 onLogin();
                 navigate('/tests');

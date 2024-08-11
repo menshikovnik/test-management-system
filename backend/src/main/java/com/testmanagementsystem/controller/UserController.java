@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,5 +86,12 @@ public class UserController {
         verificationTokenRepository.delete(verificationToken);
 
         return ResponseEntity.ok("Email confirmed successfully. You can now log in.");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getInfo(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User user = userRepository.findByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(user);
     }
 }

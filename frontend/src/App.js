@@ -24,6 +24,7 @@ const App = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('jwt');
+        window.location.href = '/login'
         setIsLoggedIn(false);
     };
 

@@ -13,7 +13,6 @@ const Tests = () => {
     });
     const [editTest, setEditTest] = useState(null);
     const [edit, setEdit] = useState(false);
-
     useEffect(() => {
         const fetchTests = () => {
             return axios.get('/tests/getAll');
@@ -68,12 +67,23 @@ const Tests = () => {
 
     const handleCreateTest = async () => {
         try {
-            await axios.post('/tests/create', newTest);
+            const userId = localStorage.getItem('user');
+            const newTestWithUser = {
+                ...newTest,
+                userId: userId
+            };
+
+            await axios.post('/tests/create', newTestWithUser, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
+            });
             alert('Test created successfully');
             window.location.reload();
             setShowCreateTest(false);
             setNewTest({
-                name: '', questions: [{text: '', answers: [{text: '', correct: false}]}]
+                name: '',
+                questions: [{text: '', answers: [{text: '', correct: false}]}]
             });
 
             const response = await axios.get('/tests');

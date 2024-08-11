@@ -8,5 +8,6 @@ import java.util.List;
 public class TestRequest {
     private Long id;
     private String name;
+    private Long userId;
     private List<QuestionRequest> questions;
 }

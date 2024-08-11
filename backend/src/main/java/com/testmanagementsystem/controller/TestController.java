@@ -2,14 +2,17 @@ package com.testmanagementsystem.controller;
 
 import com.testmanagementsystem.dto.TestRequest;
 import com.testmanagementsystem.entity.Test;
+import com.testmanagementsystem.entity.User;
 import com.testmanagementsystem.exception.TestNotFoundException;
 import com.testmanagementsystem.exception.TestServiceException;
 import com.testmanagementsystem.mapper.TestMapper;
 import com.testmanagementsystem.repository.TestRepository;
+import com.testmanagementsystem.repository.UserRepository;
 import com.testmanagementsystem.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +26,7 @@ public class TestController {
 
     private final TestService testService;
     private final TestRepository testRepository;
+    private final UserRepository userRepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createTest(@RequestBody TestRequest testRequest) {
@@ -35,11 +39,14 @@ public class TestController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<TestRequest>> getAllTests() {
-        List<Test> tests = testRepository.findAll();
+    public ResponseEntity<List<TestRequest>> getAllTests(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName());
+        List<Test> tests = testRepository.findByUserId(user.getId());
+
         List<TestRequest> testDTOs = tests.stream()
                 .map(TestMapper::toTestDTO)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(testDTOs);
     }
 

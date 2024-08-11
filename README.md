@@ -21,9 +21,9 @@ The project is divided into two main modules:
 
 ### Backend
 
-1. **Set up PostgreSQL:**
+1. **Set up PostgreSQL and mail server:**
 
-   Ensure that PostgreSQL is installed and running. Create a database and create the `application.yml` file with your database credentials in resources folder.
+   Make sure PostgreSQL is installed and running. Create a database and an `application.yml` file with your database credentials in the resources folder. You also need to set up a mail server, enter your account details.
 
    Example `application.yml`:
     ```yaml
@@ -40,6 +40,16 @@ The project is divided into two main modules:
      properties:
        hibernate:
          dialect: org.hibernate.dialect.PostgreSQLDialect
+     mail:
+      host: smtp.gmail.com
+      default-encoding: UTF-8
+      port: 587
+      username: <yourusername>
+      password: <yourpassword>
+      protocol: smtp
+      properties.mail.smtp:
+        auth: true
+        starttls.enable: true
    server:
      port: 8081
    jwt:

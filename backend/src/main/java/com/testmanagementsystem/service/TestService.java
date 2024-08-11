@@ -6,11 +6,13 @@ import com.testmanagementsystem.dto.TestRequest;
 import com.testmanagementsystem.entity.Answer;
 import com.testmanagementsystem.entity.Question;
 import com.testmanagementsystem.entity.Test;
+import com.testmanagementsystem.entity.User;
 import com.testmanagementsystem.exception.TestNotFoundException;
 import com.testmanagementsystem.exception.TestServiceException;
 import com.testmanagementsystem.repository.AnswerRepository;
 import com.testmanagementsystem.repository.QuestionRepository;
 import com.testmanagementsystem.repository.TestRepository;
+import com.testmanagementsystem.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
@@ -23,17 +25,22 @@ public class TestService {
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public TestService(TestRepository testRepository, QuestionRepository questionRepository, AnswerRepository answerRepository) {
+    public TestService(TestRepository testRepository, QuestionRepository questionRepository, AnswerRepository answerRepository, UserRepository userRepository) {
         this.testRepository = testRepository;
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
+        this.userRepository = userRepository;
     }
 
     public void createTest(TestRequest testRequest) throws TestServiceException {
         Test test = new Test();
         test.setName(testRequest.getName());
+        User user = userRepository.findById(testRequest.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        test.setUser(user);
 
         for (QuestionRequest questionRequest : testRequest.getQuestions()) {
             Question question = new Question();
