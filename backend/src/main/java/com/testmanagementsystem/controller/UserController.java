@@ -91,7 +91,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getInfo(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userRepository.findByEmail(userDetails.getUsername());
+        User user = userRepository.findByEmail(userDetails.getUsername()); //TODO
         return ResponseEntity.ok(user);
     }
 }

@@ -1,8 +1,8 @@
 package com.testmanagementsystem.entity;
 
 import lombok.Data;
-
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +22,7 @@ public class Test {
     @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    private LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
 
     @Override
     public String toString() {

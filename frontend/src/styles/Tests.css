@@ -89,6 +89,28 @@ button {
     border-color: #0056b3;
 }
 
+.link-button {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.link-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.settings-button {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.settings-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
 .add-answer-button {
     background-color: #007bff;
     border-color: #007bff;

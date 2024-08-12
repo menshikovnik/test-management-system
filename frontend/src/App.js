@@ -7,6 +7,7 @@ import Tests from './pages/Tests';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
 import './styles/App.css';
+import InviteTestPage from "./pages/InviteTestPage";
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,6 +38,7 @@ const App = () => {
                 <Route path="/login" element={<Login onLogin={handleLogin}/>}/>
                 {isLoggedIn && <Route path="/tests" element={<Tests/>}/>}
                 <Route path="/profile" element={<Profile/>}/> {/* TODO */}
+                <Route path="/invite/register/:token" element={<InviteTestPage />} />
             </Routes>
         </Router>
     );

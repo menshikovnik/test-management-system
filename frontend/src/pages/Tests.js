@@ -3,6 +3,7 @@ import axios from '../utils/axiosConfig';
 import {Button, Card, Col, Collapse, Container, Form, ListGroup, Row} from 'react-bootstrap';
 import TextareaAutosize from 'react-textarea-autosize';
 import '../styles/Tests.css';
+import TestSettingsModal from "./TestSettingsModal";
 
 const Tests = () => {
     const [tests, setTests] = useState([]);
@@ -13,6 +14,15 @@ const Tests = () => {
     });
     const [editTest, setEditTest] = useState(null);
     const [edit, setEdit] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [testId, setTestId] = useState(null);
+
+    const handleShow = (id) => {
+        setTestId(id);
+        setShowModal(true);
+    };
+
+    const handleClose = () => setShowModal(false);
     useEffect(() => {
         const fetchTests = () => {
             return axios.get('/tests/getAll');
@@ -155,6 +165,35 @@ const Tests = () => {
         }
     };
 
+    const generateLink = async (testId) => {
+        try {
+            const response = await axios.post(`/tests/generate-invite-link/${testId}`);
+            const token = response.data.inviteLink;
+            return `${token}`;
+        } catch (error) {
+            console.error('Error generating link', error);
+            return null;
+        }
+    };
+
+    const copyToClipboard = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Link copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    };
+
+    const handleCopyLink = async (testId) => {
+        const link = await generateLink(testId);
+        if (link) {
+            await copyToClipboard(link);
+        } else {
+            alert('Failed to generate link');
+        }
+    };
+
     const handleSaveEditTest = async () => {
         try {
             await axios.put(`/tests/get/${editTest.id}`, editTest);
@@ -249,6 +288,13 @@ const Tests = () => {
                             <Button variant="outline-secondary" className="edit-button" size="sm" onClick={() => handleEditTest(test)}>
                                 {!edit ? 'Edit' : 'Cancel'}
                             </Button>
+                            <Button variant="outline-secondary" className="link-button" size="sm" onClick={() => handleCopyLink(test.id)}>
+                                Copy link
+                            </Button>
+                            <Button variant="outline-secondary" className="settings-button" size="sm" onClick={() => handleShow(test.id)}>
+                                Settings
+                            </Button>
+                            <TestSettingsModal show={showModal} handleClose={handleClose} testId={testId} />
                             <Button variant="outline-secondary" className="delete-button" size="sm" onClick={() => deleteTest(test.id)}>
                                 Delete
                             </Button>
