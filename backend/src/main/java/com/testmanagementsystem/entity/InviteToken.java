@@ -16,6 +16,5 @@ public class InviteToken {
     private String token;
     @ManyToOne
     private Test test;
-    private boolean isUsed;
     private LocalDateTime expirationDate = LocalDateTime.now().plusDays(30);
 }

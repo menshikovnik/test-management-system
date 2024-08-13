@@ -16,9 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -80,11 +78,10 @@ public class InviteController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invite token has expired");
             }
 
-            List<Test> test = new ArrayList<>();
-            test.add(inviteToken.getTest());
+            Test test = inviteToken.getTest();
 
             TestResult testResult = new TestResult();
-            testResult.setTest(test.get(0));
+            testResult.setTest(test);
             testResult.setName(testResultRequest.getName());
             testResult.setEmail(testResultRequest.getEmail());
             testResult.setSurname(testResultRequest.getSurname());
@@ -92,9 +89,7 @@ public class InviteController {
 
             testResultRepository.save(testResult);
 
-            List<TestRequest> testDTO = test.stream()
-                    .map(TestMapper::toTestDTO)
-                    .collect(Collectors.toList());
+            TestRequest testDTO = TestMapper.toTestDTO(test);
 
             return ResponseEntity.ok(testDTO);
         } catch (Exception e) {

@@ -52,7 +52,7 @@ const TestComponent = () => {
     const handleStartTest = async () => {
         try {
             const response = await axios.post(`/invite/start-test/${token}`, userDetails);
-            setTest(response.data[0]);
+            setTest(response.data);
             setIsStarted(true);
         } catch (err) {
             console.error('Error starting test:', err);

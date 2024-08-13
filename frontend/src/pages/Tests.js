@@ -196,7 +196,7 @@ const Tests = () => {
 
     const handleSaveEditTest = async () => {
         try {
-            await axios.put(`/tests/get/${editTest.id}`, editTest);
+            await axios.put(`/tests/update/${editTest.id}`, editTest);
             alert('Test updated successfully');
             window.location.reload();
             setEditTest(null);

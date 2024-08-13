@@ -25,7 +25,6 @@ public class InviteTokenService {
         InviteToken inviteToken = new InviteToken();
         inviteToken.setTest(test);
         inviteToken.setToken(UUID.randomUUID().toString());
-        inviteToken.setUsed(false);
 
         return inviteTokenRepository.save(inviteToken);
     }

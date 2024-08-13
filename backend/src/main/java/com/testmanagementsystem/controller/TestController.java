@@ -57,7 +57,7 @@ public class TestController {
         return ResponseEntity.ok(testDTOs);
     }
 
-    @PutMapping("/get/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateTest(@PathVariable("id") Long id, @RequestBody TestRequest updatedTest) {
         try {
             testService.updateTest(id, updatedTest);
