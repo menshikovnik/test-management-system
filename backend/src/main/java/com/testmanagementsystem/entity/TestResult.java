@@ -23,5 +23,5 @@ public class TestResult {
     private String surname;
     @Email
     private String email;
-    private Double result;
+    private Double testResult;
 }

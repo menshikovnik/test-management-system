@@ -10,4 +10,5 @@ public class QuestionRequest {
     private String text;
     private List<AnswerRequest> answers;
     private String correctAnswer;
+    private String selectedAnswer;
 }

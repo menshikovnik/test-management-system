@@ -17,7 +17,7 @@ public class Answer {
     private String answerText;
 
     @Column(name = "correct")
-    private boolean correct;
+    private Boolean correct;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
