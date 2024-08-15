@@ -1,22 +1,19 @@
 package com.testmanagementsystem.controller;
 
-import com.testmanagementsystem.dto.InviteTokenRequest;
-import com.testmanagementsystem.dto.TestRequest;
-import com.testmanagementsystem.dto.TestResultRequest;
-import com.testmanagementsystem.entity.InviteToken;
-import com.testmanagementsystem.entity.Test;
-import com.testmanagementsystem.entity.TestResult;
+import com.testmanagementsystem.dto.*;
+import com.testmanagementsystem.entity.*;
 import com.testmanagementsystem.mapper.TestMapper;
-import com.testmanagementsystem.repository.InviteTokenRepository;
-import com.testmanagementsystem.repository.TestRepository;
-import com.testmanagementsystem.repository.TestResultRepository;
+import com.testmanagementsystem.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +23,9 @@ public class InviteController {
     private final InviteTokenRepository inviteTokenRepository;
     private final TestRepository testRepository;
     private final TestResultRepository testResultRepository;
+    private final PartialTestResultRepository partialTestResultRepository;
+    private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
 
     @PostMapping("/update-expiration/{id}")
     public ResponseEntity<?> updateExpiration(@PathVariable("id") Long id, @RequestBody InviteTokenRequest inviteTokenRequest) {
@@ -60,7 +60,26 @@ public class InviteController {
             if (inviteToken.getExpirationDate().isBefore(LocalDateTime.now())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invite token has expired");
             }
-            return ResponseEntity.ok("Token is valid.");
+
+            Optional<TestResult> existingTestResult = testResultRepository.findByInviteToken(inviteToken);
+
+            if (existingTestResult.isPresent()) {
+                TestResult testResult = existingTestResult.get();
+                if (testResult.getTestResult() != null) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("message", "Test already completed");
+                    response.put("result", testResult.getTestResult());
+
+                    return ResponseEntity.ok(response);
+                }
+
+                List<PartialTestResult> partialResults = partialTestResultRepository.findByTestResultId(testResult);
+                TestRequest testDTO = TestMapper.toTestDTO(testResult.getTest(), partialResults);
+
+                return ResponseEntity.ok(testDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Test result not found");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching test details");
         }
@@ -94,6 +113,87 @@ public class InviteController {
             return ResponseEntity.ok(testDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error starting the test");
+        }
+    }
+
+    @PostMapping("/partial-save/{testResultId}/question/{questionId}")
+    public ResponseEntity<?> savePartialResult(
+            @PathVariable Long testResultId,
+            @PathVariable Long questionId,
+            @RequestBody PartialTestResultRequest request) {
+
+        try {
+            Long answerId = request.getAnswer();
+            InviteToken inviteToken = inviteTokenRepository.findByToken(request.getToken()).orElse(null);
+
+            TestResult testResult = testResultRepository.findByInviteToken(inviteToken)
+                    .orElseThrow(() -> new RuntimeException("Test result not found"));
+
+            Question question = questionRepository.findById(questionId)
+                    .orElseThrow(() -> new RuntimeException("Question not found"));
+
+            Answer answer = answerRepository.findById(answerId)
+                    .orElseThrow(() -> new RuntimeException("Answer not found"));
+
+            Optional<PartialTestResult> existingPartialResult =
+                    partialTestResultRepository.findByTestResultIdAndQuestionId(testResult, question);
+
+            PartialTestResult partialTestResult;
+            if (existingPartialResult.isPresent()) {
+                partialTestResult = existingPartialResult.get();
+            } else {
+                partialTestResult = new PartialTestResult();
+                partialTestResult.setTestResultId(testResult);
+                partialTestResult.setQuestionId(question);
+            }
+            partialTestResult.setAnswer(answer);
+            partialTestResult.setCorrect(answer.getCorrect());
+
+            partialTestResultRepository.save(partialTestResult);
+
+            return ResponseEntity.ok("Answer saved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/submit-test/{token}")
+    public ResponseEntity<?> submitTest(
+            @PathVariable String token,
+            @RequestBody TestSubmissionRequest submissionRequest) {
+        try {
+            InviteToken inviteToken = inviteTokenRepository.findByToken(token)
+                    .orElseThrow(() -> new RuntimeException("Invite token not found"));
+
+            TestResult testResult = testResultRepository.findByInviteToken(inviteToken)
+                    .orElseThrow(() -> new RuntimeException("Test result not found"));
+
+            List<Question> questions = testResult.getTest().getQuestions();
+            int correctAnswersCount = 0;
+
+            for (Question question : questions) {
+                Answer correctAnswer = question.getAnswers().stream()
+                        .filter(Answer::getCorrect)
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Correct answer not found"));
+
+                Long userAnswerId = submissionRequest.getAnswers().get(question.getId());
+                if (correctAnswer.getId().equals(userAnswerId)) {
+                    correctAnswersCount++;
+                }
+            }
+
+            double result = (double) correctAnswersCount / questions.size() * 100;
+            testResult.setTestResult(result);
+            testResultRepository.save(testResult);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Test already completed");
+            response.put("result", result);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error submitting test: " + e.getMessage());
         }
     }
 }

@@ -4,9 +4,11 @@ import com.testmanagementsystem.dto.AnswerRequest;
 import com.testmanagementsystem.dto.QuestionRequest;
 import com.testmanagementsystem.dto.TestRequest;
 import com.testmanagementsystem.entity.Answer;
+import com.testmanagementsystem.entity.PartialTestResult;
 import com.testmanagementsystem.entity.Question;
 import com.testmanagementsystem.entity.Test;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TestMapper {
@@ -19,6 +21,32 @@ public class TestMapper {
                 .map(TestMapper::toQuestionDTO)
                 .collect(Collectors.toList()));
         return testDTO;
+    }
+
+    public static TestRequest toTestDTO(Test test, List<PartialTestResult> partialResults) {
+        TestRequest testDTO = new TestRequest();
+        testDTO.setId(test.getId());
+        testDTO.setName(test.getName());
+        testDTO.setQuestions(test.getQuestions().stream()
+                .map(question -> toQuestionDTO(question, partialResults))
+                .collect(Collectors.toList()));
+        return testDTO;
+    }
+
+    public static QuestionRequest toQuestionDTO(Question question, List<PartialTestResult> partialResults) {
+        QuestionRequest questionDTO = new QuestionRequest();
+        questionDTO.setId(question.getId());
+        questionDTO.setText(question.getQuestionText());
+        questionDTO.setAnswers(question.getAnswers().stream()
+                .map(TestMapper::toAnswerDTO)
+                .collect(Collectors.toList()));
+
+        partialResults.stream()
+                .filter(partialResult -> partialResult.getQuestionId().getId().equals(question.getId()))
+                .findFirst()
+                .ifPresent(partialResult -> questionDTO.setSelectedAnswer(toAnswerDTO(partialResult.getAnswer())));
+
+        return questionDTO;
     }
 
     public static QuestionRequest toQuestionDTO(Question question) {
@@ -35,7 +63,7 @@ public class TestMapper {
         AnswerRequest answerDTO = new AnswerRequest();
         answerDTO.setId(answer.getId());
         answerDTO.setText(answer.getAnswerText());
-        answerDTO.setCorrect(answer.isCorrect());
+        answerDTO.setCorrect(answer.getCorrect());
         return answerDTO;
     }
 }
