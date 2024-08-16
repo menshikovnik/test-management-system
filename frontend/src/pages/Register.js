@@ -2,11 +2,13 @@ import React, {useState} from 'react';
 import axios from '../utils/axiosConfig';
 import '../styles/Register.css';
 import {Link} from 'react-router-dom';
+import {Button} from "react-bootstrap";
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
@@ -15,6 +17,7 @@ const Register = () => {
         }
 
         try {
+            setIsLoading(true);
             const response = await axios.post('/auth/register', {
                 email,
                 password
@@ -25,6 +28,7 @@ const Register = () => {
             });
 
             if (response.status === 200) {
+                setIsLoading(false);
                 alert('Registered successfully');
             } else {
                 alert('Registration failed');
@@ -69,7 +73,9 @@ const Register = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-                <button onClick={handleRegister}>Register</button>
+                <Button onClick={handleRegister}>
+                    {!isLoading ? 'Register' : 'Loading...'}
+                </Button>
                 <p className="login-link">
                     Already have an account? <Link to="/login">Login</Link>
                 </p>

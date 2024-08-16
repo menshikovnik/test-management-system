@@ -4,6 +4,7 @@ import {Button, Card, Col, Collapse, Container, Form, ListGroup, Row} from 'reac
 import TextareaAutosize from 'react-textarea-autosize';
 import '../styles/Tests.css';
 import TestSettingsModal from "./TestSettingsModal";
+import LoadingModal from "./LoadingWindow";
 
 const Tests = () => {
     const [tests, setTests] = useState([]);
@@ -16,6 +17,7 @@ const Tests = () => {
     const [edit, setEdit] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [testId, setTestId] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleShow = (id) => {
         setTestId(id);
@@ -77,6 +79,7 @@ const Tests = () => {
 
     const handleCreateTest = async () => {
         try {
+            setLoading(true);
             const userId = localStorage.getItem('user');
             const newTestWithUser = {
                 ...newTest,
@@ -100,11 +103,18 @@ const Tests = () => {
             setTests(response.data);
         } catch (error) {
             console.error('Error creating test', error);
+        } finally {
+            setLoading(false);
         }
     };
 
+    const delay = ms => new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
     const deleteTest = async (testId) => {
         try {
+            setLoading(true);
+            await delay(2000);
             await axios.delete(`/tests/delete/${testId}`);
             alert('Test deleted successfully');
             window.location.reload();
@@ -113,6 +123,8 @@ const Tests = () => {
             setTests(response.data);
         } catch (error) {
             console.error('Error deleting test', error);
+        } finally {
+            setLoading(false);
         }
     };
     const toggleTestExpansion = (test) => {
@@ -196,6 +208,7 @@ const Tests = () => {
 
     const handleSaveEditTest = async () => {
         try {
+            alert('Loading...')
             await axios.put(`/tests/update/${editTest.id}`, editTest);
             alert('Test updated successfully');
             window.location.reload();
@@ -275,6 +288,7 @@ const Tests = () => {
                             </Form>
                         </Card.Body>
                     </Card>
+                    <LoadingModal show={loading} />
                 </div>
             </Collapse>
         <div className="test-list mt-4">
@@ -298,6 +312,7 @@ const Tests = () => {
                             <Button variant="outline-secondary" className="delete-button" size="sm" onClick={() => deleteTest(test.id)}>
                                 Delete
                             </Button>
+                            <LoadingModal show={loading} />
                         </div>
                     </Card.Header>
                     <Collapse in={expandedTests.includes(test.id)}>

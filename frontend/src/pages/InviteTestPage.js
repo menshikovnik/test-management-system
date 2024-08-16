@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Container, Form } from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {Button, Container, Form} from 'react-bootstrap';
 import axios from '../utils/axiosConfig';
 
 const TestComponent = () => {
     const [isStarted, setIsStarted] = useState(false);
-    const { token } = useParams();
+    const {token} = useParams();
     const [test, setTest] = useState(null);
     const [isTokenValid, setIsTokenValid] = useState(false);
     const navigate = useNavigate();
@@ -52,7 +52,7 @@ const TestComponent = () => {
     }, [token, navigate]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setUserDetails((prevDetails) => ({
             ...prevDetails,
             [name]: value,
@@ -81,7 +81,7 @@ const TestComponent = () => {
     const handleSaveAnswer = async (questionId) => {
         try {
             const selectedAnswer = answers[questionId]?.id;
-            await axios.post(`/invite/partial-save/${testResultId}/question/${questionId}`, {
+            await axios.post(`/invite/partial-save/question/${questionId}`, {
                 answer: selectedAnswer,
                 token
             });

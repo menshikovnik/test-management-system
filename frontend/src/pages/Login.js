@@ -2,15 +2,18 @@ import React, {useState} from 'react';
 import axios from '../utils/axiosConfig';
 import '../styles/Login.css';
 import {useNavigate} from 'react-router-dom';
+import {Button} from "react-bootstrap";
 
 const Login = ({onLogin}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState(null);
+    const [, setUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
+            setIsLoading(true);
             const response = await axios.post('/auth/login', {
                 email,
                 password
@@ -21,6 +24,7 @@ const Login = ({onLogin}) => {
             });
 
             if (response.status === 200) {
+                setIsLoading(false);
                 const token = response.data.jwt;
                 localStorage.setItem('jwt', token);
                 const userResponse = await axios.get('/auth/me', {
@@ -68,7 +72,9 @@ const Login = ({onLogin}) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button onClick={handleLogin}>Login</button>
+                <Button onClick={handleLogin}>
+                    {!isLoading ? 'Login' : 'Loading...'}
+                </Button>
                 <p>Don't have an account? <a href="/register">Register</a></p>
             </div>
         </div>
