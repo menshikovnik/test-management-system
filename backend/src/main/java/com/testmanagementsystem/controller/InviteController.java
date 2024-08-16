@@ -1,9 +1,9 @@
 package com.testmanagementsystem.controller;
 
-import com.testmanagementsystem.dto.InviteTokenRequest;
-import com.testmanagementsystem.dto.PartialTestResultRequest;
-import com.testmanagementsystem.dto.TestResultRequest;
-import com.testmanagementsystem.dto.TestSubmissionRequest;
+import com.testmanagementsystem.dto.invite.InviteTokenRequest;
+import com.testmanagementsystem.dto.test.PartialTestResultRequest;
+import com.testmanagementsystem.dto.test.TestResultRequest;
+import com.testmanagementsystem.dto.test.TestSubmissionRequest;
 import com.testmanagementsystem.service.InviteTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

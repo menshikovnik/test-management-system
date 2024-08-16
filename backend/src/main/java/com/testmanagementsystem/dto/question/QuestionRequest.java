@@ -1,5 +1,6 @@
-package com.testmanagementsystem.dto;
+package com.testmanagementsystem.dto.question;
 
+import com.testmanagementsystem.dto.answer.AnswerRequest;
 import lombok.Data;
 
 import java.util.List;

@@ -1,27 +1,19 @@
 package com.testmanagementsystem.controller;
 
-import com.testmanagementsystem.dto.AuthResponse;
-import com.testmanagementsystem.dto.UserLoginRequest;
-import com.testmanagementsystem.dto.UserRegistrationRequest;
+import com.testmanagementsystem.dto.user.UserLoginRequest;
+import com.testmanagementsystem.dto.user.UserRegistrationRequest;
 import com.testmanagementsystem.entity.User;
-import com.testmanagementsystem.entity.VerificationToken;
 import com.testmanagementsystem.repository.UserRepository;
-import com.testmanagementsystem.repository.VerificationTokenRepository;
-import com.testmanagementsystem.security.JwtUtil;
 import com.testmanagementsystem.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,11 +22,7 @@ import java.time.LocalDateTime;
 public class UserController {
 
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final UserService userService;
 
     @PostMapping("/register")
@@ -50,42 +38,19 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userLoginRequest.getEmail(), userLoginRequest.getPassword())
-            );
+            return userService.loginUser(userLoginRequest);
         } catch (Exception e) {
-            throw new RuntimeException("Invalid email or password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        final User user = userRepository.findByEmail(userLoginRequest.getEmail());
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-        if (!user.isEnabled()) {
-            throw new RuntimeException("Email is not verified");
-        }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(userLoginRequest.getEmail());
-        final String jwt = jwtUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new AuthResponse(jwt));
     }
 
     @GetMapping("/confirm")
     public ResponseEntity<?> confirmRegistration(String token) {
-        VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
-
-        if (verificationToken == null || verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("Invalid or expired token.");
+        try {
+            return userService.confirmRegistration(token);
+        } catch (Exception e) {
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong.");
         }
-
-        User user = verificationToken.getUser();
-        user.setEnabled(true);
-        userRepository.save(user);
-
-        verificationTokenRepository.delete(verificationToken);
-
-        return ResponseEntity.ok("Email confirmed successfully. You can now log in.");
     }
 
     @GetMapping("/me")

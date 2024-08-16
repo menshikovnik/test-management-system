@@ -1,6 +1,10 @@
 package com.testmanagementsystem.service;
 
-import com.testmanagementsystem.dto.*;
+import com.testmanagementsystem.dto.invite.InviteTokenRequest;
+import com.testmanagementsystem.dto.test.PartialTestResultRequest;
+import com.testmanagementsystem.dto.test.TestRequest;
+import com.testmanagementsystem.dto.test.TestResultRequest;
+import com.testmanagementsystem.dto.test.TestSubmissionRequest;
 import com.testmanagementsystem.entity.*;
 import com.testmanagementsystem.exception.TestNotFoundException;
 import com.testmanagementsystem.mapper.TestMapper;
@@ -61,7 +65,9 @@ public class InviteTokenService {
 
             return ResponseEntity.ok(testDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Test result not found");
+            Test test = inviteToken.getTest();
+            TestRequest testDTO = TestMapper.toTestDTO(test);
+            return ResponseEntity.ok(testDTO);
         }
     }
 

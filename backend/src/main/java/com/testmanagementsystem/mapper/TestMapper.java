@@ -1,8 +1,8 @@
 package com.testmanagementsystem.mapper;
 
-import com.testmanagementsystem.dto.AnswerRequest;
-import com.testmanagementsystem.dto.QuestionRequest;
-import com.testmanagementsystem.dto.TestRequest;
+import com.testmanagementsystem.dto.answer.AnswerRequest;
+import com.testmanagementsystem.dto.question.QuestionRequest;
+import com.testmanagementsystem.dto.test.TestRequest;
 import com.testmanagementsystem.entity.Answer;
 import com.testmanagementsystem.entity.PartialTestResult;
 import com.testmanagementsystem.entity.Question;

@@ -1,4 +1,4 @@
-package com.testmanagementsystem.dto;
+package com.testmanagementsystem.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

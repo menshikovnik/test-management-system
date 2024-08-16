@@ -16,7 +16,7 @@ const TestComponent = () => {
     });
     const [answers, setAnswers] = useState({});
     const [error, setError] = useState(null);
-    const [testResultId, setTestResultId] = useState(null);
+    const [, setTestResultId] = useState(null);
     const [testResult, setTestResult] = useState(null);
 
     useEffect(() => {
@@ -38,13 +38,12 @@ const TestComponent = () => {
                             }
                         });
                         setAnswers(initialAnswers);
-                        setIsStarted(true);
                     }
                 }
             } catch (error) {
+                alert('Token is incorrect')
                 console.error('Error validating token:', error);
                 setError('Invalid or expired invite link');
-                navigate('/');
             }
         };
 
@@ -115,7 +114,7 @@ const TestComponent = () => {
             {testResult !== null ? (
                 <div className="test-result">
                     <h2>Test Completed</h2>
-                    <p>Your result: {testResult}%</p>
+                    <p>Your result: {testResult.toFixed(2)}%</p>
                 </div>
             ) : (
                 !isStarted && isTokenValid ? (
@@ -148,7 +147,9 @@ const TestComponent = () => {
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
-                        <Button onClick={handleStartTest}>Start Test</Button>
+                        <Button onClick={handleStartTest} className="mt-3">
+                            Start Test
+                        </Button>
                         {error && <p className="text-danger">{error}</p>}
                     </Form>
                 ) : (

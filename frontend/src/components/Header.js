@@ -18,6 +18,8 @@ const Header = ({isLoggedIn, handleLogout}) => {
                                 <Dropdown.Item href="/" className="custom-dropdown-item">Home</Dropdown.Item>
                                 {isLoggedIn &&
                                     <Dropdown.Item href="/tests" className="custom-dropdown-item">Tests</Dropdown.Item>}
+                                <Dropdown.Item href="/tests/results"
+                                               className="custom-dropdown-item">Test Results</Dropdown.Item>
                                 {isLoggedIn ? (
                                     <>
                                         <Dropdown.Item onClick={handleLogout}
