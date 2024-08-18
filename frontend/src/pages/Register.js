@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from '../utils/axiosConfig';
 import '../styles/Register.css';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {Button} from "react-bootstrap";
 
 const Register = () => {
@@ -9,6 +9,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
@@ -29,7 +30,9 @@ const Register = () => {
 
             if (response.status === 200) {
                 setIsLoading(false);
-                alert('Registered successfully');
+                alert('Registered successfully\n' +
+                    'Please check your email for confirm.');
+                navigate('/login')
             } else {
                 alert('Registration failed');
             }

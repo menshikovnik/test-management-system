@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class InviteTokenService {
     private final PartialTestResultRepository partialTestResultRepository;
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final EmailService emailService;
 
     public InviteToken createInviteToken(Long testId) {
         Test test = testRepository.findById(testId)
@@ -175,7 +177,14 @@ public class InviteTokenService {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Test already completed");
         response.put("result", result);
+        sendTestResult(testResult.getEmail(), result);
 
         return ResponseEntity.ok(response);
+    }
+
+    private void sendTestResult(String email, double result) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String formattedResult = df.format(result);
+        emailService.sendSimpleMessage(email, "Test result", "Your result is " + formattedResult + "%");
     }
 }

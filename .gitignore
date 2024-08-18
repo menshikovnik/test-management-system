@@ -52,3 +52,4 @@ yarn-debug.log
 /gradlew.bat
 /frontend/package-lock.json
 /backend/src/main/resources/application.yml
+/qodana.yaml

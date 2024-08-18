@@ -1,8 +1,10 @@
 package com.testmanagementsystem.controller;
 
+import com.testmanagementsystem.dto.invite.InviteTokenRequest;
 import com.testmanagementsystem.dto.test.TestRequest;
 import com.testmanagementsystem.exception.TestNotFoundException;
 import com.testmanagementsystem.exception.TestServiceException;
+import com.testmanagementsystem.service.InviteTokenService;
 import com.testmanagementsystem.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.List;
 public class TestController {
 
     private final TestService testService;
+    private final InviteTokenService inviteTokenService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createTest(@RequestBody TestRequest testRequest) {
@@ -74,6 +77,15 @@ public class TestController {
             return testService.getTestResult(userId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/update-expiration/{id}")
+    public ResponseEntity<?> updateExpiration(@PathVariable("id") Long id, @RequestBody InviteTokenRequest inviteTokenRequest) {
+        try {
+            return inviteTokenService.updateExpiration(id, inviteTokenRequest);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update expiration date.");
         }
     }
 }

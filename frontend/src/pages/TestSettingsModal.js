@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import axios from '../utils/axiosConfig';
+import LoadingModal from "./LoadingWindow";
 
 const TestSettingsModal = ({ show, handleClose, testId }) => {
     const [expirationDate, setExpirationDate] = useState('');
     const [expirationTime, setExpirationTime] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleDateChange = (e) => {
         setExpirationDate(e.target.value);
@@ -23,7 +25,8 @@ const TestSettingsModal = ({ show, handleClose, testId }) => {
         const expirationDateTime = new Date(`${expirationDate}T${expirationTime}`);
 
         try {
-            await axios.post(`/invite/update-expiration/${testId}`, {
+            setLoading(true);
+            await axios.post(`/tests/update-expiration/${testId}`, {
                 testId,
                 expirationDate: expirationDateTime.toISOString(),
             });
@@ -32,10 +35,13 @@ const TestSettingsModal = ({ show, handleClose, testId }) => {
         } catch (error) {
             console.error('Error saving settings', error);
             alert('Failed to save settings');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
+        <div>
         <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
                 <Modal.Title>Test Settings</Modal.Title>
@@ -71,6 +77,8 @@ const TestSettingsModal = ({ show, handleClose, testId }) => {
                 </Button>
             </Modal.Footer>
         </Modal>
+            <LoadingModal show={loading} />
+            </div>
     );
 };
 

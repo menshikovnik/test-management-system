@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import {Button, Container, Form} from 'react-bootstrap';
 import axios from '../utils/axiosConfig';
+import LoadingModal from "./LoadingWindow";
 
 const TestComponent = () => {
     const [isStarted, setIsStarted] = useState(false);
@@ -18,12 +19,14 @@ const TestComponent = () => {
     const [error, setError] = useState(null);
     const [, setTestResultId] = useState(null);
     const [testResult, setTestResult] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const validateToken = async () => {
             try {
                 const response = await axios.get(`/invite/register/${token}`);
                 if (response.status === 200) {
+                    localStorage.setItem('invite', 'true');
                     setIsTokenValid(true);
                     if (response.data.result != null) {
                         setTestResult(response.data.result);
@@ -93,6 +96,7 @@ const TestComponent = () => {
 
     const handleSubmitTest = async () => {
         try {
+            setLoading(true);
             const formattedAnswers = {};
             Object.keys(answers).forEach(questionId => {
                 formattedAnswers[questionId] = answers[questionId].id || answers[questionId];
@@ -103,9 +107,12 @@ const TestComponent = () => {
                 answers: formattedAnswers,
             });
             alert('Test submitted successfully');
+            window.location.reload();
         } catch (err) {
             console.error('Error submitting test:', err);
             setError('Failed to submit the test. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -181,6 +188,7 @@ const TestComponent = () => {
                                     ))}
                                     <Button onClick={handleSubmitTest}>Submit Test</Button>
                                 </Form>
+                                <LoadingModal show={loading} />
                             </>
                         )}
                         {error && <p className="text-danger">{error}</p>}

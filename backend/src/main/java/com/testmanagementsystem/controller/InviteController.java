@@ -1,6 +1,5 @@
 package com.testmanagementsystem.controller;
 
-import com.testmanagementsystem.dto.invite.InviteTokenRequest;
 import com.testmanagementsystem.dto.test.PartialTestResultRequest;
 import com.testmanagementsystem.dto.test.TestResultRequest;
 import com.testmanagementsystem.dto.test.TestSubmissionRequest;
@@ -17,15 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class InviteController {
 
     private final InviteTokenService inviteTokenService;
-
-    @PostMapping("/update-expiration/{id}")
-    public ResponseEntity<?> updateExpiration(@PathVariable("id") Long id, @RequestBody InviteTokenRequest inviteTokenRequest) {
-        try {
-            return inviteTokenService.updateExpiration(id, inviteTokenRequest);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update expiration date.");
-        }
-    }
 
     @GetMapping("/register/{token}")
     public ResponseEntity<?> getTestDetails(@PathVariable String token) {

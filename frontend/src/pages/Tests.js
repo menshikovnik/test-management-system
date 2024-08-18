@@ -26,6 +26,7 @@ const Tests = () => {
 
     const handleClose = () => setShowModal(false);
     useEffect(() => {
+        setLoading(true);
         const fetchTests = () => {
             return axios.get('/tests/getAll');
         };
@@ -36,7 +37,7 @@ const Tests = () => {
             })
             .catch(error => {
                 console.error('Error fetching tests', error);
-            });
+            }).finally(() => setLoading(false));
     }, []);
 
     const handleCreateTestToggle = () => {
@@ -113,14 +114,18 @@ const Tests = () => {
     );
     const deleteTest = async (testId) => {
         try {
+            const confirmDelete = window.confirm("Are you sure you want to delete this test?");
+            if (confirmDelete) {
             setLoading(true);
             await delay(2000);
             await axios.delete(`/tests/delete/${testId}`);
+
             alert('Test deleted successfully');
             window.location.reload();
 
             const response = await axios.get('/tests');
             setTests(response.data);
+        }
         } catch (error) {
             console.error('Error deleting test', error);
         } finally {
@@ -208,7 +213,7 @@ const Tests = () => {
 
     const handleSaveEditTest = async () => {
         try {
-            alert('Loading...')
+            setLoading(true);
             await axios.put(`/tests/update/${editTest.id}`, editTest);
             alert('Test updated successfully');
             window.location.reload();
@@ -218,6 +223,8 @@ const Tests = () => {
             setTests(response.data);
         } catch (error) {
             console.error('Error updating test', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -303,7 +310,7 @@ const Tests = () => {
                                 {!edit ? 'Edit' : 'Cancel'}
                             </Button>
                             <Button variant="outline-secondary" className="link-button" size="sm" onClick={() => handleCopyLink(test.id)}>
-                                Copy link
+                                Generate and Copy Invite Link
                             </Button>
                             <Button variant="outline-secondary" className="settings-button" size="sm" onClick={() => handleShow(test.id)}>
                                 Settings
@@ -390,6 +397,7 @@ const Tests = () => {
                                     </Button>
                                 </Form>
                             )}
+                            <LoadingModal show={loading} />
                         </div>
                     </Collapse>
                 </Card>
