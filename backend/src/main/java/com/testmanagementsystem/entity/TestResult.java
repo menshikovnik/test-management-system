@@ -4,7 +4,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import java.util.List;
 
 @Data
 @Entity
@@ -17,8 +16,6 @@ public class TestResult {
     private Test test;
     @ManyToOne
     private InviteToken inviteToken;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Answer> answers;
     private String name;
     private String surname;
     @Email
