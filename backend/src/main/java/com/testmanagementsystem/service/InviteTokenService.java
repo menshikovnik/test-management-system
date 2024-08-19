@@ -165,9 +165,23 @@ public class InviteTokenService {
                     .orElseThrow(() -> new RuntimeException("Correct answer not found"));
 
             Long userAnswerId = testSubmissionRequest.getAnswers().get(question.getId());
-            if (correctAnswer.getId().equals(userAnswerId)) {
+            Answer userAnswer = question.getAnswers().stream()
+                    .filter(answer -> answer.getId().equals(userAnswerId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("User answer not found"));
+
+            boolean isCorrect = correctAnswer.getId().equals(userAnswerId);
+            if (isCorrect) {
                 correctAnswersCount++;
             }
+
+            PartialTestResult partialResult = new PartialTestResult();
+            partialResult.setTestResultId(testResult);
+            partialResult.setQuestionId(question);
+            partialResult.setAnswer(userAnswer);
+            partialResult.setCorrect(isCorrect);
+
+            partialTestResultRepository.save(partialResult);
         }
 
         double result = (double) correctAnswersCount / questions.size() * 100;
@@ -178,7 +192,6 @@ public class InviteTokenService {
         response.put("message", "Test already completed");
         response.put("result", result);
         sendTestResult(testResult.getEmail(), result);
-
         return ResponseEntity.ok(response);
     }
 
