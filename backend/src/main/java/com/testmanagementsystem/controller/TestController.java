@@ -2,8 +2,10 @@ package com.testmanagementsystem.controller;
 
 import com.testmanagementsystem.dto.invite.InviteTokenRequest;
 import com.testmanagementsystem.dto.test.TestRequest;
+import com.testmanagementsystem.entity.TestResult;
 import com.testmanagementsystem.exception.TestNotFoundException;
 import com.testmanagementsystem.exception.TestServiceException;
+import com.testmanagementsystem.repository.TestResultRepository;
 import com.testmanagementsystem.service.InviteTokenService;
 import com.testmanagementsystem.service.TestService;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class TestController {
 
     private final TestService testService;
     private final InviteTokenService inviteTokenService;
+    private final TestResultRepository testResultRepository; // Инжектируем репозиторий результатов тестов
 
     @PostMapping("/create")
     public ResponseEntity<?> createTest(@RequestBody TestRequest testRequest) {
@@ -86,6 +90,17 @@ public class TestController {
             return inviteTokenService.updateExpiration(id, inviteTokenRequest);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update expiration date.");
+        }
+    }
+
+    @DeleteMapping("/results/delete/{id}")
+    public ResponseEntity<?> deleteTestResult(@PathVariable Long id) {
+        Optional<TestResult> testResultOpt = testResultRepository.findById(id);
+        if (testResultOpt.isPresent()) {
+            testResultRepository.delete(testResultOpt.get());
+            return ResponseEntity.ok("Test result deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Test result not found");
         }
     }
 }

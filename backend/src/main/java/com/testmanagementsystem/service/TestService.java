@@ -138,6 +138,8 @@ public class TestService {
                 response.setSurname(testResult.getSurname());
                 response.setEmail(testResult.getEmail());
                 response.setResult(testResult.getTestResult());
+                response.setAge(testResult.getAge());
+                response.setId(testResult.getId());
 
                 List<QuestionResult> questionResults = partialResults.stream().map(partialResult -> {
                     QuestionResult questionResult = new QuestionResult();
@@ -154,6 +156,7 @@ public class TestService {
 
         return ResponseEntity.ok(resultResponses);
     }
+
 
     public void deleteTest(Test test) {
         testRepository.delete(test);

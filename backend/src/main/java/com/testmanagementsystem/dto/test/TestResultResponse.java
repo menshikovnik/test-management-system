@@ -12,4 +12,6 @@ public class TestResultResponse {
     private String email;
     private double result;
     private List<QuestionResult> questionResults;
+    private Integer age;
+    private Long id;
 }

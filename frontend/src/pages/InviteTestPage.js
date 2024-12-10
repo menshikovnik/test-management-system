@@ -14,12 +14,15 @@ const TestComponent = () => {
         name: '',
         surname: '',
         email: '',
+        age: '' // поле возраста
     });
     const [answers, setAnswers] = useState({});
     const [error, setError] = useState(null);
     const [, setTestResultId] = useState(null);
     const [testResult, setTestResult] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
     useEffect(() => {
         const validateToken = async () => {
@@ -80,17 +83,31 @@ const TestComponent = () => {
         }
     };
 
-    const handleSaveAnswer = async (questionId) => {
+    const handleSaveCurrentAnswer = async () => {
+        const currentQuestion = test.questions[currentQuestionIndex];
+        const selectedAnswer = answers[currentQuestion.id]?.id || answers[currentQuestion.id];
+
+        if (!selectedAnswer) {
+            return;
+        }
+
         try {
-            const selectedAnswer = answers[questionId]?.id;
-            await axios.post(`/invite/partial-save/question/${questionId}`, {
+            await axios.post(`/invite/partial-save/question/${currentQuestion.id}`, {
                 answer: selectedAnswer,
                 token
             });
-            alert('Answer saved successfully');
         } catch (err) {
             console.error('Error saving answer:', err);
             setError('Failed to save the answer. Please try again.');
+        }
+    };
+
+    const handleNextQuestion = async () => {
+        await handleSaveCurrentAnswer();
+        if (currentQuestionIndex < test.questions.length - 1) {
+            setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+        } else {
+            handleSubmitTest();
         }
     };
 
@@ -114,6 +131,25 @@ const TestComponent = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const renderQuestion = () => {
+        const question = test.questions[currentQuestionIndex];
+        return (
+            <div key={question.id} className="mb-3">
+                <h4>{question.text}</h4>
+                {question.answers.map((answer) => (
+                    <Form.Check
+                        key={answer.id}
+                        type="radio"
+                        label={answer.text}
+                        name={`question-${question.id}`}
+                        checked={answers[question.id]?.id === answer.id || answers[question.id] === answer.id}
+                        onChange={() => handleAnswerChange(question.id, answer)}
+                    />
+                ))}
+            </div>
+        );
     };
 
     return (
@@ -154,6 +190,15 @@ const TestComponent = () => {
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Age</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="age"
+                                value={userDetails.age}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
                         <Button onClick={handleStartTest} className="mt-3">
                             Start Test
                         </Button>
@@ -165,28 +210,17 @@ const TestComponent = () => {
                             <>
                                 <h2>{test.name}</h2>
                                 <Form>
-                                    {test.questions.map((question) => (
-                                        <div key={question.id} className="mb-3">
-                                            <h4>{question.text}</h4>
-                                            {question.answers.map((answer) => (
-                                                <Form.Check
-                                                    key={answer.id}
-                                                    type="radio"
-                                                    label={answer.text}
-                                                    name={`question-${question.id}`}
-                                                    checked={answers[question.id]?.id === answer.id}
-                                                    onChange={() => handleAnswerChange(question.id, answer)}
-                                                />
-                                            ))}
-                                            <Button
-                                                className="mt-2"
-                                                onClick={() => handleSaveAnswer(question.id)}
-                                            >
-                                                Save Answer
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    <Button onClick={handleSubmitTest}>Submit Test</Button>
+                                    {renderQuestion()}
+                                    <div className="mt-3">
+                                        <Button
+                                            onClick={handleNextQuestion}
+                                            variant="primary"
+                                        >
+                                            {currentQuestionIndex < test.questions.length - 1
+                                                ? 'Next Question'
+                                                : 'Submit Test'}
+                                        </Button>
+                                    </div>
                                 </Form>
                                 <LoadingModal show={loading} />
                             </>

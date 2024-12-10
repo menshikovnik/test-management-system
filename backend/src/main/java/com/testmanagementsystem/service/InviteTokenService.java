@@ -88,6 +88,7 @@ public class InviteTokenService {
         testResult.setName(testResultRequest.getName());
         testResult.setEmail(testResultRequest.getEmail());
         testResult.setSurname(testResultRequest.getSurname());
+        testResult.setAge(testResultRequest.getAge()); // устанавливаем возраст
         testResult.setInviteToken(inviteToken);
 
         testResultRepository.save(testResult);
