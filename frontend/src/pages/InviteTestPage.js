@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {Button, Container, Form} from 'react-bootstrap';
+import {Button, Container, Form, Row, Col} from 'react-bootstrap';
 import axios from '../utils/axiosConfig';
 import LoadingModal from "./LoadingWindow";
 
@@ -14,7 +14,7 @@ const TestComponent = () => {
         name: '',
         surname: '',
         email: '',
-        age: '' // поле возраста
+        age: ''
     });
     const [answers, setAnswers] = useState({});
     const [error, setError] = useState(null);
@@ -84,6 +84,7 @@ const TestComponent = () => {
     };
 
     const handleSaveCurrentAnswer = async () => {
+        if (!test) return;
         const currentQuestion = test.questions[currentQuestionIndex];
         const selectedAnswer = answers[currentQuestion.id]?.id || answers[currentQuestion.id];
 
@@ -109,6 +110,12 @@ const TestComponent = () => {
         } else {
             handleSubmitTest();
         }
+    };
+
+    const handleQuestionChange = async (index) => {
+        if (index === currentQuestionIndex) return;
+        await handleSaveCurrentAnswer();
+        setCurrentQuestionIndex(index);
     };
 
     const handleSubmitTest = async () => {
@@ -208,24 +215,49 @@ const TestComponent = () => {
                     <div className="test-content">
                         {test && (
                             <>
-                                <h2>{test.name}</h2>
-                                <Form>
-                                    {renderQuestion()}
-                                    <div className="mt-3">
-                                        <Button
-                                            onClick={handleNextQuestion}
-                                            variant="primary"
-                                        >
-                                            {currentQuestionIndex < test.questions.length - 1
-                                                ? 'Next Question'
-                                                : 'Submit Test'}
-                                        </Button>
-                                    </div>
-                                </Form>
-                                <LoadingModal show={loading} />
+                                <Row className="mb-3">
+                                    <Col>
+                                        <h2>{test.name}</h2>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={2}>
+                                        {/* Навигация по вопросам */}
+                                        <div style={{marginBottom: '20px'}}>
+                                            <strong>Questions:</strong>
+                                            <div style={{display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '10px'}}>
+                                                {test.questions.map((q, i) => (
+                                                    <Button
+                                                        key={q.id}
+                                                        variant={i === currentQuestionIndex ? 'primary' : 'outline-primary'}
+                                                        onClick={() => handleQuestionChange(i)}
+                                                    >
+                                                        {i + 1}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col md={10}>
+                                        <Form>
+                                            {renderQuestion()}
+                                            <div className="mt-3">
+                                                <Button
+                                                    onClick={handleNextQuestion}
+                                                    variant="primary"
+                                                >
+                                                    {currentQuestionIndex < test.questions.length - 1
+                                                        ? 'Next Question'
+                                                        : 'Submit Test'}
+                                                </Button>
+                                            </div>
+                                        </Form>
+                                        <LoadingModal show={loading} />
+                                        {error && <p className="text-danger">{error}</p>}
+                                    </Col>
+                                </Row>
                             </>
                         )}
-                        {error && <p className="text-danger">{error}</p>}
                     </div>
                 )
             )}

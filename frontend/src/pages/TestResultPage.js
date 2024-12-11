@@ -1,17 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import axios from '../utils/axiosConfig';
-import {Container, Table, Button, Modal} from 'react-bootstrap';
+import {Container, Table, Button, Modal, Form, Row, Col} from 'react-bootstrap';
 
 const TestResultsPage = () => {
     const {userId} = useParams();
     const [results, setResults] = useState([]);
     const [error, setError] = useState(null);
-    const [isAscendingByResult, setIsAscendingByResult] = useState(true);
-    const [isAscendingByAge, setIsAscendingByAge] = useState(true);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedResult, setSelectedResult] = useState(null);
+
+
+    const [searchQuery, setSearchQuery] = useState('');
+
+
+    const [minResult, setMinResult] = useState('');
+
+
+    const [sortField, setSortField] = useState('name');
+    const [isAscending, setIsAscending] = useState(true);
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -27,30 +35,6 @@ const TestResultsPage = () => {
 
         fetchResults();
     }, [userId]);
-
-    const handleSortByResult = () => {
-        const sortedResults = [...results].sort((a, b) => {
-            if (isAscendingByResult) {
-                return a.result - b.result;
-            } else {
-                return b.result - a.result;
-            }
-        });
-        setResults(sortedResults);
-        setIsAscendingByResult(!isAscendingByResult);
-    };
-
-    const handleSortByAge = () => {
-        const sortedResults = [...results].sort((a, b) => {
-            if (isAscendingByAge) {
-                return (a.age ?? 0) - (b.age ?? 0);
-            } else {
-                return (b.age ?? 0) - (a.age ?? 0);
-            }
-        });
-        setResults(sortedResults);
-        setIsAscendingByAge(!isAscendingByAge);
-    };
 
     const handleShowModal = (result) => {
         setSelectedResult(result);
@@ -76,19 +60,88 @@ const TestResultsPage = () => {
         }
     };
 
+    const filteredBySearch = results.filter(result => {
+        const fullName = (result.name + ' ' + result.surname).toLowerCase();
+        return fullName.includes(searchQuery.toLowerCase());
+    });
+
+    const filteredByResult = filteredBySearch.filter(result => {
+        if (minResult === '') return true;
+        return result.result >= parseFloat(minResult);
+    });
+
+
+    const sortedResults = [...filteredByResult].sort((a, b) => {
+        let valA, valB;
+        switch (sortField) {
+            case 'name':
+                valA = a.name.toLowerCase();
+                valB = b.name.toLowerCase();
+                break;
+            case 'surname':
+                valA = a.surname.toLowerCase();
+                valB = b.surname.toLowerCase();
+                break;
+            case 'age':
+                valA = a.age ?? 0;
+                valB = b.age ?? 0;
+                break;
+            case 'result':
+                valA = a.result;
+                valB = b.result;
+                break;
+            default:
+                valA = a.name.toLowerCase();
+                valB = b.name.toLowerCase();
+        }
+
+        if (valA < valB) return isAscending ? -1 : 1;
+        if (valA > valB) return isAscending ? 1 : -1;
+        return 0;
+    });
+
     return (
         <Container className="mt-5">
             <h2>Test Results</h2>
             {error && <p className="text-danger">{error}</p>}
 
-            <div className="mb-3">
-                <Button variant="primary" onClick={handleSortByResult} className="me-2">
-                    Sort by result ({isAscendingByResult ? 'ascending' : 'descending'})
-                </Button>
-                <Button variant="secondary" onClick={handleSortByAge}>
-                    Sort by age ({isAscendingByAge ? 'ascending' : 'descending'})
-                </Button>
-            </div>
+            <Row className="mb-3">
+                <Col md={3}>
+                    <Form.Control
+                        type="text"
+                        placeholder="Search by name or surname..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </Col>
+                <Col md={3}>
+                    <Form.Control
+                        type="number"
+                        placeholder="Min result (%)"
+                        value={minResult}
+                        onChange={(e) => setMinResult(e.target.value)}
+                    />
+                </Col>
+                <Col md={3}>
+                    <Form.Select
+                        value={sortField}
+                        onChange={(e) => setSortField(e.target.value)}
+                    >
+                        <option value="name">Sort by Name</option>
+                        <option value="surname">Sort by Surname</option>
+                        <option value="age">Sort by Age</option>
+                        <option value="result">Sort by Result</option>
+                    </Form.Select>
+                </Col>
+                <Col md={3}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setIsAscending(!isAscending)}
+                    >
+                        {isAscending ? 'Ascending' : 'Descending'}
+                    </Button>
+                </Col>
+            </Row>
 
             <Table striped bordered hover>
                 <thead>
@@ -103,7 +156,7 @@ const TestResultsPage = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {results.map((result, index) => (
+                {sortedResults.map((result, index) => (
                     <tr key={index}>
                         <td>{result.name}</td>
                         <td>{result.surname}</td>
@@ -130,14 +183,13 @@ const TestResultsPage = () => {
                                                 <strong>Selected Answer:</strong> {questionResult.selectedAnswer}<br/>
                                                 <strong>Correct:</strong>
                                                 <span style={{color: questionResult.correct ? 'green' : 'red'}}>
-                        {questionResult.correct ? ' Yes' : ' No'}
-                    </span>
+                                                    {questionResult.correct ? ' Yes' : ' No'}
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
                                 );
                             })()}
-
                         </td>
                         <td>
                             <Button variant="danger" onClick={() => handleShowModal(result)}>Delete</Button>
