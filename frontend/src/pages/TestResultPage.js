@@ -11,12 +11,8 @@ const TestResultsPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedResult, setSelectedResult] = useState(null);
 
-
     const [searchQuery, setSearchQuery] = useState('');
-
-
     const [minResult, setMinResult] = useState('');
-
 
     const [sortField, setSortField] = useState('name');
     const [isAscending, setIsAscending] = useState(true);
@@ -70,7 +66,6 @@ const TestResultsPage = () => {
         return result.result >= parseFloat(minResult);
     });
 
-
     const sortedResults = [...filteredByResult].sort((a, b) => {
         let valA, valB;
         switch (sortField) {
@@ -99,6 +94,14 @@ const TestResultsPage = () => {
         if (valA > valB) return isAscending ? 1 : -1;
         return 0;
     });
+
+    const totalCount = sortedResults.length;
+    const totalResult = sortedResults.reduce((sum, r) => sum + r.result, 0);
+    const totalAge = sortedResults.reduce((sum, r) => sum + (r.age ?? 0), 0);
+    const idealCount = sortedResults.filter(r => r.result === 100).length;
+
+    const averageResult = totalCount > 0 ? (totalResult / totalCount).toFixed(2) : 0;
+    const averageAge = totalCount > 0 ? (totalAge / totalCount).toFixed(2) : 0;
 
     return (
         <Container className="mt-5">
@@ -140,6 +143,30 @@ const TestResultsPage = () => {
                     >
                         {isAscending ? 'Ascending' : 'Descending'}
                     </Button>
+                </Col>
+            </Row>
+
+            {/* Блок статистики */}
+            <Row className="mb-4">
+                <Col md={3}>
+                    <div className="p-2 border rounded">
+                        <strong>Total Passed:</strong> {totalCount}
+                    </div>
+                </Col>
+                <Col md={3}>
+                    <div className="p-2 border rounded">
+                        <strong>Average Result:</strong> {averageResult}%
+                    </div>
+                </Col>
+                <Col md={3}>
+                    <div className="p-2 border rounded">
+                        <strong>Average Age:</strong> {averageAge}
+                    </div>
+                </Col>
+                <Col md={3}>
+                    <div className="p-2 border rounded">
+                        <strong>100% Scored:</strong> {idealCount}
+                    </div>
                 </Col>
             </Row>
 
@@ -196,6 +223,11 @@ const TestResultsPage = () => {
                         </td>
                     </tr>
                 ))}
+                {sortedResults.length === 0 && (
+                    <tr>
+                        <td colSpan="7" className="text-center">No results found.</td>
+                    </tr>
+                )}
                 </tbody>
             </Table>
 
